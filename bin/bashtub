@@ -47,7 +47,7 @@ function located_assert_match() {
   regex=$4
   actual=$5
 
-  if [[ "$actual" =~ "$regex" ]]; then
+  if [[ "$actual" =~ $regex ]]; then
     printf '\e[32m.\e[m'
   else
     printf "\e[31mF\e[m"
