@@ -113,11 +113,14 @@ print_result() {
 }
 
 for f in $@; do
+  unset teardown setup
   source "$f"
+  hash setup 2>/dev/null && setup
   for testcase in $(compgen -A function | grep '^testcase_'); do
     $testcase
     unset $testcase
   done
+  hash teardown 2>/dev/null && teardown
 done
 
 print_result
