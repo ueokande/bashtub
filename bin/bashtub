@@ -1,0 +1,128 @@
+#!/usr/bin/bash
+
+shopt -s expand_aliases
+
+declare -i TEST_CASE_COUNT=0
+declare -a FAILED_CASES=()
+declare -a FAILURE_LOCATIONS=()
+declare -a FAILURE_REASONS=()
+
+to_sentence() {
+  space_separated=$(echo $1 | sed -e 's/^testcase_//' | tr '_' ' ')
+  echo "${space_separated^}"
+}
+
+add_failed_case() {
+  reason=$1
+  source_name=$2
+  lineno=$3
+  funcname=$4
+
+  case_name=$(to_sentence $funcname)
+  location="${source_name}:${lineno}:in \`${funcname}'"
+
+  FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
+  FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
+  FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
+}
+
+function located_assert_equal() {
+  TEST_CASE_COUNT+=1
+
+  expected=$4
+  actual=$5
+
+  if [[ "$expected" == "$actual" ]]; then
+    printf '\e[32m.\e[m'
+  else
+    printf "\e[31mF\e[m"
+    add_failed_case "\`${expected}' expected but was \`${actual}'" $@
+  fi
+}
+alias assert_equal='located_assert_equal $BASH_SOURCE $LINENO $FUNCNAME'
+
+function located_assert_match() {
+  TEST_CASE_COUNT+=1
+
+  regex=$4
+  actual=$5
+
+  if [[ "$actual" =~ "$regex" ]]; then
+    printf '\e[32m.\e[m'
+  else
+    printf "\e[31mF\e[m"
+    add_failed_case "\'${actual}' was expected to match \`${regex}'" $@
+  fi
+}
+alias assert_match='located_assert_match $BASH_SOURCE $LINENO $FUNCNAME'
+
+function located_assert_true() {
+  TEST_CASE_COUNT+=1
+
+  params=$@
+  shift; shift; shift
+  subject $@
+  if [[ $status -eq 0 ]]; then
+    printf '\e[32m.\e[m'
+  else
+    printf "\e[31mF\e[m"
+    add_failed_case "\`$command' was expected to return true" $params
+  fi
+}
+alias assert_true='located_assert_true $BASH_SOURCE $LINENO $FUNCNAME'
+
+function located_assert_false() {
+  TEST_CASE_COUNT+=1
+
+  params=$@
+  shift; shift; shift
+  subject $@
+  if [[ $status -ne 0 ]]; then
+    printf '\e[32m.\e[m'
+  else
+    printf "\e[31mF\e[m"
+    add_failed_case "\`$command' was expected to return false" $params
+  fi
+}
+alias assert_false='located_assert_false $BASH_SOURCE $LINENO $FUNCNAME'
+
+subject() {
+  . <({ err=$({ out=$(eval $@); sta=$?; } 2>&1; declare -p out sta >&2); declare -p err; } 2>&1)
+  stdout="$out"
+  stderr="$err"
+  status="$sta"
+}
+
+print_result() {
+  printf '\n\n'
+
+  if [[ ${#FAILED_CASES[@]} -eq 0 ]]; then
+    echo "$TEST_CASE_COUNT examples, 0 failure"
+    return 0
+  else
+    echo "Failers:"
+    for ((i = 0; i < ${#FAILED_CASES[@]}; ++i)) {
+      printf "%2d) %s\n" $(($i + 1)) "${FAILED_CASES[$i]}"
+      printf "    \e[31m${FAILURE_LOCATIONS[$i]}\e[m\n"
+      printf "    \e[31m${FAILURE_REASONS[$i]}\e[m\n"
+    }
+    echo
+    printf "\e[31m$TEST_CASE_COUNT examples, $count failure\e[m\n"
+    return 1
+  fi
+}
+
+if [ $# -eq 0 ]; then
+  files=$(find "$(dirname $0)/../test" -name '*_test.sh')
+else
+  files=$@
+fi
+for f in $files; do
+  source "$f"
+  for testcase in $(compgen -A function | grep '^testcase_'); do
+    $testcase
+    unset $testcase
+  done
+done
+
+print_result
