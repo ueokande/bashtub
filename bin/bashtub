@@ -112,12 +112,7 @@ print_result() {
   fi
 }
 
-if [ $# -eq 0 ]; then
-  files=$(find "$(dirname $0)/../test" -name '*_test.sh')
-else
-  files=$@
-fi
-for f in $files; do
+for f in $@; do
   source "$f"
   for testcase in $(compgen -A function | grep '^testcase_'); do
     $testcase
