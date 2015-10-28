@@ -1,0 +1,6 @@
+Alice 16 female
+Bob   19 male
+Carol 17 female
+Dave  21 male
+Ellen 17 female
+Frank 19 male
