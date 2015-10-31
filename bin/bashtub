@@ -59,14 +59,14 @@ alias assert_match='located_assert_match $BASH_SOURCE $LINENO $FUNCNAME'
 function located_assert_true() {
   TEST_CASE_COUNT+=1
 
-  params=$@
-  shift; shift; shift
-  subject $@
+  params=($@)
+  command="${params[@]:3}"
+  subject $command
   if [[ $status -eq 0 ]]; then
     printf '\e[32m.\e[m'
   else
     printf "\e[31mF\e[m"
-    add_failed_case "\`$command' was expected to return true" $params
+    add_failed_case "\`$command' was expected to return true" $@
   fi
 }
 alias assert_true='located_assert_true $BASH_SOURCE $LINENO $FUNCNAME'
@@ -74,14 +74,14 @@ alias assert_true='located_assert_true $BASH_SOURCE $LINENO $FUNCNAME'
 function located_assert_false() {
   TEST_CASE_COUNT+=1
 
-  params=$@
-  shift; shift; shift
-  subject $@
+  params=($@)
+  command="${params[@]:3}"
+  subject $command
   if [[ $status -ne 0 ]]; then
     printf '\e[32m.\e[m'
   else
     printf "\e[31mF\e[m"
-    add_failed_case "\`$command' was expected to return false" $params
+    add_failed_case "\`$command' was expected to return false" $@
   fi
 }
 alias assert_false='located_assert_false $BASH_SOURCE $LINENO $FUNCNAME'
