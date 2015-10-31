@@ -1,0 +1,5 @@
+sudo: false
+language: bash
+script:
+- bash bin/bashtub `find test -name '*_test.sh'`
+- bash -u bin/bashtub `find test -name '*_test.sh'`
