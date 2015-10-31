@@ -97,7 +97,7 @@ print_result() {
   printf '\n\n'
 
   if [[ ${#FAILED_CASES[@]} -eq 0 ]]; then
-    echo "$TEST_CASE_COUNT examples, 0 failure"
+    echo "$TEST_CASE_COUNT examples, 0 failures"
     return 0
   else
     echo "Failers:"
@@ -107,7 +107,7 @@ print_result() {
       printf "    \e[31m${FAILURE_REASONS[$i]}\e[m\n"
     }
     echo
-    printf "\e[31m$TEST_CASE_COUNT examples, $count failure\e[m\n"
+    printf "\e[31m$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures\e[m\n"
     return 1
   fi
 }
