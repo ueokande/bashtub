@@ -8,83 +8,49 @@ declare -a FAILURE_LOCATIONS=()
 declare -a FAILURE_REASONS=()
 
 to_sentence() {
-  space_separated=$(echo $1 | sed -e 's/^testcase_//' | tr '_' ' ')
+  local space_separated=$(echo $1 | sed -e 's/^testcase_//' | tr '_' ' ')
   echo "${space_separated^}"
 }
 
-add_failed_case() {
-  reason=$1
-  source_name=$2
-  lineno=$3
-  funcname=$4
-
-  case_name=$(to_sentence $funcname)
-  location="${source_name}:${lineno}:in \`${funcname}'"
-
-  FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
-  FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
-  FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
+assert_equal_matcher() {
+  echo "\`$1' expected but was \`$2'"
+  [[ "$1" == "$2" ]]
 }
 
-function located_assert_equal() {
+assert_match_matcher() {
+  echo "\'$2' was expected to match \`$1'"
+  [[ "$2" =~ $1 ]]
+}
+
+assert_true_matcher() {
+  echo "\`$@' was expected to return true"
+  subject $@
+  [[ $status -eq 0 ]]
+}
+
+assert_false_matcher() {
+  echo "\`$@' was expected to return false"
+  subject $@
+  [[ $status -ne 0 ]]
+}
+
+located_assertion_base() {
+  local location="$1:$2:in \`$3'"
+  local case_name=$(to_sentence $3)
+  local matcher=$4
+  shift; shift; shift; shift
+
   TEST_CASE_COUNT+=1
-
-  expected=$4
-  actual=$5
-
-  if [[ "$expected" == "$actual" ]]; then
+  reason=$($matcher "$@")
+  if [[ $? -eq 0 ]]; then
     printf '\e[32m.\e[m'
   else
     printf "\e[31mF\e[m"
-    add_failed_case "\`${expected}' expected but was \`${actual}'" $@
+    FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
+    FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
+    FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
   fi
 }
-alias assert_equal='located_assert_equal $BASH_SOURCE $LINENO $FUNCNAME'
-
-function located_assert_match() {
-  TEST_CASE_COUNT+=1
-
-  regex=$4
-  actual=$5
-
-  if [[ "$actual" =~ $regex ]]; then
-    printf '\e[32m.\e[m'
-  else
-    printf "\e[31mF\e[m"
-    add_failed_case "\'${actual}' was expected to match \`${regex}'" $@
-  fi
-}
-alias assert_match='located_assert_match $BASH_SOURCE $LINENO $FUNCNAME'
-
-function located_assert_true() {
-  TEST_CASE_COUNT+=1
-
-  params=($@)
-  command="${params[@]:3}"
-  subject $command
-  if [[ $status -eq 0 ]]; then
-    printf '\e[32m.\e[m'
-  else
-    printf "\e[31mF\e[m"
-    add_failed_case "\`$command' was expected to return true" $@
-  fi
-}
-alias assert_true='located_assert_true $BASH_SOURCE $LINENO $FUNCNAME'
-
-function located_assert_false() {
-  TEST_CASE_COUNT+=1
-
-  params=($@)
-  command="${params[@]:3}"
-  subject $command
-  if [[ $status -ne 0 ]]; then
-    printf '\e[32m.\e[m'
-  else
-    printf "\e[31mF\e[m"
-    add_failed_case "\`$command' was expected to return false" $@
-  fi
-}
-alias assert_false='located_assert_false $BASH_SOURCE $LINENO $FUNCNAME'
 
 subject() {
   . <({ err=$({ out=$(eval $@); sta=$?; } 2>&1; declare -p out sta >&2); declare -p err; } 2>&1)
@@ -111,6 +77,17 @@ print_result() {
     return 1
   fi
 }
+
+declare_assertions() {
+  local matcher
+  for matcher in $(compgen -A function | grep '_matcher$'); do
+    aliased_id=$(echo $matcher | sed -e 's/_matcher$//g')
+    located_fn=$(echo $matcher | sed -e 's/^/located_/g')
+    alias $aliased_id="located_assertion_base "'$BASH_SOURCE $LINENO $FUNCNAME '$matcher
+  done
+}
+
+declare_assertions
 
 for f in $@; do
   unset teardown setup
