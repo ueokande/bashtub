@@ -3,6 +3,14 @@ Bashtub :bathtub: - Unit test framework for Bash
 
 Bashtub is a tiny unit test framework for Bash.
 You can specify the test caes as as assertion-based test cases likes xUnit.
+Bashtub colorfully outputs the results of the test.
+When test passed
+
+![success](success.png)
+
+and when tests failed, it bashtub outputs the information of the failures,
+
+![failure](failure.png)
 
 Installation
 ------------
@@ -138,9 +146,9 @@ assert_equal 0 $status
 
 ### `setup` and `teardown`
 
-To initialize and detialize the test environment.
+To initialize and detialize the test environment, use `setup` and `teardown` methods.
 Most typically usage of setup and teardown is creating an temporary file in `setup` and remove that in `teardown`.
-This is useful with `mktemp` command in the following:
+This two methods are excellent with `mktemp` command.
 
 ```sh
 # examples/setup_and_teardown_test.sh
