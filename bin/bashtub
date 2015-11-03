@@ -8,7 +8,9 @@ declare -a FAILURE_LOCATIONS=()
 declare -a FAILURE_REASONS=()
 
 to_sentence() {
-  local space_separated=$(echo $1 | sed -e 's/^testcase_//' | tr '_' ' ')
+  declare space_separated
+  space_separated=${1#testcase_}
+  space_separated=${space_separated//_/ }
   echo "${space_separated^}"
 }
 
@@ -18,34 +20,35 @@ assert_equal_matcher() {
 }
 
 assert_match_matcher() {
-  echo "\'$2' was expected to match \`$1'"
+  echo "\`$2' was expected to match \`$1'"
   [[ "$2" =~ $1 ]]
 }
 
 assert_true_matcher() {
-  echo "\`$@' was expected to return true"
-  subject $@
+  echo "\`$*' was expected to return true"
+  subject "$@"
   [[ $status -eq 0 ]]
 }
 
 assert_false_matcher() {
-  echo "\`$@' was expected to return false"
-  subject $@
+  echo "\`$*' was expected to return false"
+  subject "$@"
   [[ $status -ne 0 ]]
 }
 
 located_assertion_base() {
-  local location="$1:$2:in \`$3'"
-  local case_name=$(to_sentence $3)
-  local matcher=$4
+  declare location case_name matcher
+  location="$1:$2:in \`$3'"
+  case_name=$(to_sentence "$3")
+  matcher=$4
   shift; shift; shift; shift
 
   TEST_CASE_COUNT+=1
   reason=$($matcher "$@")
   if [[ $? -eq 0 ]]; then
-    printf '\e[32m.\e[m'
+    echo -en '\e[32m.\e[m'
   else
-    printf "\e[31mF\e[m"
+    echo -en "\e[31mF\e[m"
     FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
     FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
     FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
@@ -53,14 +56,12 @@ located_assertion_base() {
 }
 
 subject() {
-  . <({ err=$({ out=$(eval $@); sta=$?; } 2>&1; declare -p out sta >&2); declare -p err; } 2>&1)
-  stdout="$out"
-  stderr="$err"
-  status="$sta"
+  eval "$({ err=$({ out=$(eval $@); sta=$?; } 2>&1; declare -p out sta >&2); declare -p err; } 2>&1)"
+  stdout="$out" stderr="$err" status="$sta"
 }
 
 print_result() {
-  printf '\n\n'
+  echo -e '\n'
 
   if [[ ${#FAILED_CASES[@]} -eq 0 ]]; then
     echo "$TEST_CASE_COUNT examples, 0 failures"
@@ -68,12 +69,12 @@ print_result() {
   else
     echo "Failers:"
     for ((i = 0; i < ${#FAILED_CASES[@]}; ++i)) {
-      printf "%2d) %s\n" $(($i + 1)) "${FAILED_CASES[$i]}"
-      printf "    \e[31m${FAILURE_LOCATIONS[$i]}\e[m\n"
-      printf "    \e[31m${FAILURE_REASONS[$i]}\e[m\n"
+      echo -e "$((i + 1))) ${FAILED_CASES[$i]}"
+      echo -e "    \e[31m${FAILURE_LOCATIONS[$i]}\e[m"
+      echo -e "    \e[31m${FAILURE_REASONS[$i]}\e[m"
     }
     echo
-    printf "\e[31m$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures\e[m\n"
+    echo "\e[31m$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures\e[m"
     return 1
   fi
 }
@@ -81,20 +82,18 @@ print_result() {
 declare_assertions() {
   local matcher
   for matcher in $(compgen -A function | grep '_matcher$'); do
-    aliased_id=$(echo $matcher | sed -e 's/_matcher$//g')
-    located_fn=$(echo $matcher | sed -e 's/^/located_/g')
-    alias $aliased_id="located_assertion_base "'$BASH_SOURCE $LINENO $FUNCNAME '$matcher
+    aliased_id=${matcher%_matcher}
+    alias $aliased_id='located_assertion_base $BASH_SOURCE $LINENO $FUNCNAME '"$matcher"
   done
 }
 
 help_and_exit() {
-  printf "\
+  echo "\
 Usage: $0 [OPTION]... SOURCE_FILE...
 Run a unit-test from SOURCE_FILE(s).
 
     --help     display this help and exit
-    --version  output version information and exit
-"
+    --version  output version information and exit"
   exit 0
 }
 
@@ -104,18 +103,16 @@ version_and_exit() {
 }
 
 unrecognized_option_and_exit() {
-  printf "\
+  echo "\
 $0: unrecognized option -- \`$1'
-Try \`$0 --help' for more information.
-" >&2
+Try \`$0 --help' for more information." >&2
   exit 1
 }
 
 missing_operand_and_exit() {
-  printf "\
+  echo "\
 $0: missing operand
-Try \`$0 --help' for more information.
-" >&2
+Try \`$0 --help' for more information." >&2
   exit 1
 }
 
@@ -124,7 +121,7 @@ for param in "$@"; do
   case $param in
   --help) help_and_exit;;
   --version) version_and_exit;;
-  --*) unrecognized_option_and_exit ${param#--} ;;
+  --*) unrecognized_option_and_exit "${param#--}" ;;
   *) break ;;
   esac
   shift
@@ -132,13 +129,14 @@ done
 
 declare_assertions
 
-for f in $@; do
+for f in "$@"; do
   unset teardown setup
+  # shellcheck source=/dev/null
   source "$f"
   hash setup 2>/dev/null && setup
   for testcase in $(compgen -A function | grep '^testcase_'); do
     $testcase
-    unset $testcase
+    unset "$testcase"
   done
   hash teardown 2>/dev/null && teardown
 done
