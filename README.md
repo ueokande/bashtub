@@ -1,6 +1,8 @@
 Bashtub :bathtub: - Unit test framework for Bash
 ================================================
 
+[![Build Status](https://travis-ci.org/ueokande/bashtub.svg?branch=master)](https://travis-ci.org/ueokande/bashtub)
+
 Bashtub is a tiny unit test framework for Bash.
 You can specify the test caes as as assertion-based test cases likes xUnit.
 Bashtub colorfully outputs the results of the test.
