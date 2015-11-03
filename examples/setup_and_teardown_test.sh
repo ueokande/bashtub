@@ -1,17 +1,21 @@
 setup() {
   TMPDIR=$(mktemp -d)
-  for i in `seq 10`; do
-    echo $((i * 2)) >"$TMPDIR/${i}"
-  done
 }
 
 teardown() {
   rm -rf "$TMPDIR"
 }
 
-testcase_file_contains_double_of_name() {
-  for f in $TMPDIR/*; do
-    subject cat $f
-    assert_equal $(basename $f) $(($stdout / 2))
-  done
+testcase_file_is_empty() {
+  local tmpfile=$(mktemp -p $TMPDIR)
+  subject file $tmpfile
+  assert_match "empty" "$stdout"
+}
+
+testcase_file_is_tar() {
+  local tmpfile=$(mktemp -p $TMPDIR)
+  local tarfile=$TMPDIR/temporary.tar
+  tar cfP $tarfile $tmpfile
+  subject file $tarfile
+  assert_match "tar" "$stdout"
 }
