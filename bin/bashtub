@@ -87,6 +87,49 @@ declare_assertions() {
   done
 }
 
+help_and_exit() {
+  printf "\
+Usage: $0 [OPTION]... SOURCE_FILE...
+Run a unit-test from SOURCE_FILE(s).
+
+    --help     display this help and exit
+    --version  output version information and exit
+"
+  exit 0
+}
+
+version_and_exit() {
+  echo "bashtub"
+  exit 0
+}
+
+unrecognized_option_and_exit() {
+  printf "\
+$0: unrecognized option -- \`$1'
+Try \`$0 --help' for more information.
+" >&2
+  exit 1
+}
+
+missing_operand_and_exit() {
+  printf "\
+$0: missing operand
+Try \`$0 --help' for more information.
+" >&2
+  exit 1
+}
+
+[ $# -eq 0 ] && missing_operand_and_exit
+for param in "$@"; do
+  case $param in
+  --help) help_and_exit;;
+  --version) version_and_exit;;
+  --*) unrecognized_option_and_exit ${param#--} ;;
+  *) break ;;
+  esac
+  shift
+done
+
 declare_assertions
 
 for f in $@; do
