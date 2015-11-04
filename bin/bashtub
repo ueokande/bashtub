@@ -98,7 +98,7 @@ Run a unit-test from SOURCE_FILE(s).
 }
 
 version_and_exit() {
-  echo "bashtub"
+  echo "bashtub 0.1"
   exit 0
 }
 

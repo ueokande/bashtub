@@ -18,7 +18,7 @@ Installation
 ------------
 
 ```sh
-curl -o ~/bin/bashtub https://raw.githubusercontent.com/ueokande/bashtub/master/bin/bashtub
+curl -o ~/bin/bashtub https://github.com/gitlabhq/gitlabhq/tree/v0.1/bin/bashtub
 chmod +x ~/bin/bashtub
 ```
 
