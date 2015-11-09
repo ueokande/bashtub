@@ -1,5 +1,5 @@
 sudo: false
 language: bash
 script:
-- bash bin/bashtub `find test -name '*_test.sh'`
-- bash -u bin/bashtub `find test -name '*_test.sh'`
+- bash -e bin/bashtub `find test -name '*_test.sh'`
+- bash -eu bin/bashtub `find test -name '*_test.sh'`
