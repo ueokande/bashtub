@@ -9,6 +9,10 @@ env:
 - RUN_BASH_VERSION=4.3
 before_install:
 - bash bin/install_bash.sh
+cache:
+  directories:
+  - bash-build
 script:
-- $TRAVIS_BUILD_DIR/$RUN_BASH_VERSION/bin/bash -e bin/bashtub `find test -name '*_test.sh'`
-- $TRAVIS_BUILD_DIR/$RUN_BASH_VERSION/bin/bash -eu bin/bashtub `find test -name '*_test.sh'`
+- bash-build/$RUN_BASH_VERSION/bin/bash --version
+- bash-build/$RUN_BASH_VERSION/bin/bash -e bin/bashtub `find test -name '*_test.sh'`
+- bash-build/$RUN_BASH_VERSION/bin/bash -eu bin/bashtub `find test -name '*_test.sh'`
