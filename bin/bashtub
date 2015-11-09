@@ -11,7 +11,7 @@ to_sentence() {
   declare space_separated
   space_separated=${1#testcase_}
   space_separated=${space_separated//_/ }
-  echo "${space_separated^}"
+  echo "$(tr '[:lower:]' '[:upper:]' <<< ${space_separated:0:1})${space_separated:1}"
 }
 
 assert_equal_matcher() {
