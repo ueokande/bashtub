@@ -1,5 +1,14 @@
 sudo: false
 language: bash
+env:
+- RUN_BASH_VERSION=3.1
+- RUN_BASH_VERSION=3.2
+- RUN_BASH_VERSION=4.0
+- RUN_BASH_VERSION=4.1
+- RUN_BASH_VERSION=4.2
+- RUN_BASH_VERSION=4.3
+before_install:
+- bash bin/install_bash.sh
 script:
-- bash -e bin/bashtub `find test -name '*_test.sh'`
-- bash -eu bin/bashtub `find test -name '*_test.sh'`
+- $TRAVIS_BUILD_DIR/$RUN_BASH_VERSION/bin/bash -e bin/bashtub `find test -name '*_test.sh'`
+- $TRAVIS_BUILD_DIR/$RUN_BASH_VERSION/bin/bash -eu bin/bashtub `find test -name '*_test.sh'`
