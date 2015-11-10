@@ -1,5 +1,5 @@
 testcase_partialy_matches() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_match cdef abcdefgh
   }' >$TMPFILE
@@ -8,7 +8,7 @@ testcase_partialy_matches() {
 }
 
 testcase_matches_heads() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_match ^abc abcdefgh
   }' >$TMPFILE
@@ -17,7 +17,7 @@ testcase_matches_heads() {
 }
 
 testcase_matches_tails() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_match fgh$ abcdefgh
   }' >$TMPFILE
@@ -26,7 +26,7 @@ testcase_matches_tails() {
 }
 
 testcase_matches_with_spaces() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_match " is a " "This is a pen"
   }' >$TMPFILE
@@ -35,7 +35,7 @@ testcase_matches_with_spaces() {
 }
 
 testcase_not_matches_with_spaces() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_match " is a " "This apple"
   }' >$TMPFILE

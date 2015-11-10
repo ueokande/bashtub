@@ -1,5 +1,5 @@
 testcase_comapres_numbers() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_equal 10 $((2 + 8))
   }' >$TMPFILE
@@ -8,7 +8,7 @@ testcase_comapres_numbers() {
 }
 
 testcase_comapres_spaced_string() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_equal "alice bob" "alice bob"
   }' >$TMPFILE
@@ -17,7 +17,7 @@ testcase_comapres_spaced_string() {
 }
 
 testcase_unmatched_strings() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo 'testcase_compare_numbers() {
     assert_equal "apple" "pineapple"
   }' >$TMPFILE
