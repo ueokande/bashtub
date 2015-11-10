@@ -1,5 +1,5 @@
 testcase_result_ontains_number_of_examples() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo '
   testcase_my_test_case() {
     assert_true true
@@ -13,7 +13,7 @@ testcase_result_ontains_number_of_examples() {
 }
 
 testcase_result_ontains_number_of_examples_and_failures() {
-  local TMPFILE=$(mktemp)
+  local TMPFILE=$(mktemp -t tmp.XXXXXX)
   echo '
   testcase_my_test_case() {
     assert_true true
