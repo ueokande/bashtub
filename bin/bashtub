@@ -122,6 +122,7 @@ for param in "$@"; do
   --help) help_and_exit;;
   --version) version_and_exit;;
   --*) unrecognized_option_and_exit "${param#--}" ;;
+  -*) unrecognized_option_and_exit "${param#-}" ;;
   *) break ;;
   esac
   shift
