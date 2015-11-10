@@ -46,9 +46,9 @@ located_assertion_base() {
   TEST_CASE_COUNT+=1
   reason=$($matcher "$@")
   if [[ $? -eq 0 ]]; then
-    echo -en '\e[32m.\e[m'
+    echo -n $'\e[32m.\e[m'
   else
-    echo -en "\e[31mF\e[m"
+    echo -n $'\e[31mF\e[m'
     FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
     FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
     FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
@@ -69,12 +69,16 @@ print_result() {
   else
     echo "Failers:"
     for ((i = 0; i < ${#FAILED_CASES[@]}; ++i)) {
-      echo -e "$((i + 1))) ${FAILED_CASES[$i]}"
-      echo -e "    \e[31m${FAILURE_LOCATIONS[$i]}\e[m"
-      echo -e "    \e[31m${FAILURE_REASONS[$i]}\e[m"
+      echo "$((i + 1))) ${FAILED_CASES[$i]}"
+      echo -n $'\e[31m'
+      echo "    ${FAILURE_LOCATIONS[$i]}"
+      echo "    ${FAILURE_REASONS[$i]}"
+      echo -n $'\e[m'
     }
     echo
-    echo "\e[31m$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures\e[m"
+    echo -n $'\e[31m'
+    echo "$TEST_CASE_COUNT examples, ${#FAILED_CASES[@]} failures"
+    echo -n $'\e[m'
     return 1
   fi
 }
