@@ -14,7 +14,14 @@ testcase_output_version() {
   assert_match 'bashtub' "$stdout"
 }
 
-testcase_output_unrecognized_option() {
+testcase_output_unrecognized_short_option() {
+  subject $0 -Z
+  assert_match 'unrecognized' "$stderr"
+  assert_match 'Z' "$stderr"
+  assert_equal 1 $status
+}
+
+testcase_output_unrecognized_long_option() {
   subject $0 --sushi
   assert_match 'unrecognized' "$stderr"
   assert_match 'sushi' "$stderr"
