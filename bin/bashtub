@@ -113,14 +113,6 @@ Try \`$0 --help' for more information." >&2
   exit 1
 }
 
-missing_operand_and_exit() {
-  echo "\
-$0: missing operand
-Try \`$0 --help' for more information." >&2
-  exit 1
-}
-
-[ $# -eq 0 ] && missing_operand_and_exit
 for param in "$@"; do
   case $param in
   --help) help_and_exit;;
