@@ -1,7 +1,5 @@
 testcase_outputs_missing_operand() {
-  subject $0
-  assert_match 'missing' "$stderr"
-  assert_equal 1 $status
+  assert_true $0
 }
 
 testcase_outputs_help() {
