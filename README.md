@@ -14,6 +14,11 @@ and when tests failed, it bashtub outputs the information of the failures,
 
 ![failure](failure.png)
 
+Requirements
+------------
+
+* Bash 3.2+
+
 Installation
 ------------
 
