@@ -139,6 +139,7 @@ for f in "$@"; do
       )
     done
     hash teardown 2>/dev/null && teardown
+    true
   )
 done
 
