@@ -41,7 +41,7 @@ located_assertion_base() {
   location="$1:$2:in \`$3'"
   case_name=$(to_sentence "$3")
   matcher=$4
-  shift; shift; shift; shift
+  shift 4;
 
   TEST_CASE_COUNT+=1
   reason=$($matcher "$@")
@@ -49,9 +49,9 @@ located_assertion_base() {
     echo -n $'\e[32m.\e[m'
   else
     echo -n $'\e[31mF\e[m'
-    FAILED_CASES=("${FAILED_CASES[@]}" "$case_name")
-    FAILURE_LOCATIONS=("${FAILURE_LOCATIONS[@]}" "$location")
-    FAILURE_REASONS=("${FAILURE_REASONS[@]}" "$reason")
+    FAILED_CASES+=("$case_name")
+    FAILURE_LOCATIONS+=("$location")
+    FAILURE_REASONS+=("$reason")
   fi
 }
 
@@ -126,16 +126,25 @@ done
 
 declare_assertions
 
+logfile=$(mktemp -t tmp.XXXXXX)
+exec 3>$logfile
+
 for f in "$@"; do
-  unset teardown setup
-  # shellcheck source=/dev/null
-  source "$f"
-  hash setup 2>/dev/null && setup
-  for testcase in $(compgen -A function | grep '^testcase_'); do
-    $testcase
-    unset "$testcase"
-  done
-  hash teardown 2>/dev/null && teardown
+  ( source "$f"
+    hash setup 2>/dev/null && setup
+    for testcase in $(compgen -A function | grep '^testcase_'); do
+      ( source $logfile
+        $testcase
+        declare -p FAILED_CASES FAILURE_LOCATIONS FAILURE_REASONS TEST_CASE_COUNT >&3
+      )
+    done
+    hash teardown 2>/dev/null && teardown
+    true
+  )
 done
+
+source $logfile
+rm $logfile
+exec 3>&-
 
 print_result
