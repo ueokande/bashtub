@@ -132,12 +132,16 @@ exec 3>$logfile
 for f in "$@"; do
   ( source "$f"
     hash setup 2>/dev/null && setup
+    hash before_all 2>/dev/null && before_all
     for testcase in $(compgen -A function | grep '^testcase_'); do
       ( source $logfile
+        hash before_each 2>/dev/null && before_each
         $testcase
+        hash after_each 2>/dev/null && after_each
         declare -p FAILED_CASES FAILURE_LOCATIONS FAILURE_REASONS TEST_CASE_COUNT >&3
       )
     done
+    hash after_all 2>/dev/null && after_all
     hash teardown 2>/dev/null && teardown
     true
   )
