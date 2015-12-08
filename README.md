@@ -151,19 +151,21 @@ subject command
 assert_equal 0 $status
 ```
 
-### `setup` and `teardown`
+### `before` and `after` functions
 
-To initialize and detialize the test environment, use `setup` and `teardown` methods.
-Most typically usage of setup and teardown is creating an temporary file in `setup` and remove that in `teardown`.
+To initialize and detialize the test environment, use `before_each`, `after_each`, `before_all`, and `after_all` methods.
+`before_each` and `after_each` functions are invoked before and after each test cases.
+`before_all` and `after_all` function is invoked before/after suite of test cases.
+Most typically usage of these methods are creating an temporary file in `bofore` function and remove that in `after` function.
 This two methods are excellent with `mktemp` command.
 
 ```sh
-# examples/setup_and_teardown_test.sh
-setup() {
+# examples/before_and_after.sh
+before_each() {
   TMPDIR=$(mktemp -d)
 }
 
-teardown() {
+after_each() {
   rm -rf "$TMPDIR"
 }
 
