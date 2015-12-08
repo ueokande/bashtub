@@ -1,8 +1,8 @@
-setup() {
+before_each() {
   TMPDIR=$(mktemp -d)
 }
 
-teardown() {
+after_each() {
   rm -rf "$TMPDIR"
 }
 
