@@ -7,12 +7,18 @@ env:
 - RUN_BASH_VERSION=4.1
 - RUN_BASH_VERSION=4.2
 - RUN_BASH_VERSION=4.3
-before_install:
-- bash bin/install_bash.sh
 cache:
   directories:
-  - bash-build
+  - .bashvm/usr
+install:
+- mkdir -p .bashvm
+- curl  https://codeload.github.com/ueokande/bashvm/tar.gz/master | tar zx
+- cp -r bashvm-master/* .bashvm/
+before_script:
+- export BASHVM_HOME=$(readlink -f  .bashvm)
+- source .bashvm/bin/bashvm-init
+- bashvm use --install $RUN_BASH_VERSION
+- bash --version
 script:
-- bash-build/$RUN_BASH_VERSION/bin/bash --version
-- bash-build/$RUN_BASH_VERSION/bin/bash -e bin/bashtub `find test -name '*_test.sh'`
-- bash-build/$RUN_BASH_VERSION/bin/bash -eu bin/bashtub `find test -name '*_test.sh'`
+- bash -e bin/bashtub `find test -name '*_test.sh'`
+- bash -eu bin/bashtub `find test -name '*_test.sh'`
