@@ -23,7 +23,7 @@ Installation
 ------------
 
 ```sh
-curl -o ~/bin/bashtub https://raw.githubusercontent.com/ueokande/bashtub/v0.1/bin/bashtub
+curl -o ~/bin/bashtub https://raw.githubusercontent.com/ueokande/bashtub/v0.2/bin/bashtub
 chmod +x ~/bin/bashtub
 ```
 
