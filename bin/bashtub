@@ -67,7 +67,7 @@ print_result() {
     echo "$TEST_CASE_COUNT examples, 0 failures"
     return 0
   else
-    echo "Failers:"
+    echo "Failures:"
     for ((i = 0; i < ${#FAILED_CASES[@]}; ++i)) {
       echo "$((i + 1))) ${FAILED_CASES[$i]}"
       echo -n $'\e[31m'
